@@ -5,7 +5,8 @@ from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-__version__ = '0.0.4'
+__version__ = '0.0.1'
+
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -29,7 +30,6 @@ class CMakeBuild(build_ext):
         for ext in self.extensions:
             self.build_extension(ext)
 
-
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
@@ -40,7 +40,7 @@ class CMakeBuild(build_ext):
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-            if sys.maxsize > 2**32:
+            if sys.maxsize > 2 ** 32:
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
         else:
@@ -55,35 +55,37 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
+
 def main():
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
-    
+
     setuptools.setup(
         name='gravomg',
         version=__version__,
-        author='Ruben Wiersma and Ahmad Nasikun',
-        author_email="rubenwiersma@gmail.com",
-        description='Gravo MG: A Fast Geometric Multigrid Method for Curved Surfaces',
+        author='Ruben Wiersma and Ahmad Nasikun, adapted by Jackson Campolattaro',
+        author_email="jackson.campolattaro@gmail.com",
+        description='Restriction & Prolongation operators from Gravo MG',
         long_description=long_description,
         long_description_content_type="text/markdown",
         license="MIT",
-        url="https://github.com/rubenwiersma/gravo_mg_python",
+        url="https://github.com/JacksonCampolattaro/gravo-mg-python",
         project_urls={
-            "Bug Tracker": "https://github.com/rubenwiersma/gravo_mg/issues",
+            "Bug Tracker": "https://github.com/JacksonCampolattaro/gravo-mg-python/issues",
         },
         classifiers=[
             "Programming Language :: Python :: 3",
             "License :: OSI Approved :: Apache Software License",
             "Operating System :: OS Independent",
         ],
-        package_dir = {'': 'src'},
+        package_dir={'': 'src'},
         packages=setuptools.find_packages(where="src"),
         ext_modules=[CMakeExtension('.')],
         install_requires=['numpy', 'scipy'],
         cmdclass=dict(build_ext=CMakeBuild),
         zip_safe=False,
     )
+
 
 if __name__ == "__main__":
     main()

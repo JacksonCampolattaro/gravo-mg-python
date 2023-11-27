@@ -3,4 +3,4 @@
 	url = https://github.com/pybind/pybind11.git
 [submodule "deps/gravomg"]
 	path = deps/gravomg
-	url = https://github.com/rubenwiersma/gravo_mg_cpp
+	url = https://github.com/JacksonCampolattaro/gravo-mg
