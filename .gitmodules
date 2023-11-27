@@ -5,4 +5,5 @@
 [submodule "deps/gravomg"]
 	path = deps/gravomg
 	url = https://github.com/JacksonCampolattaro/gravo-mg
+	branch = main
 	update = merge
