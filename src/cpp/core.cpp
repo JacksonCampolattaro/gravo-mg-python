@@ -24,7 +24,9 @@ PYBIND11_MODULE(gravomg_bindings, m) {
             .value("UNIFORM", UNIFORM)
             .value("INVDIST", INVDIST);
 
-    m.def("fast_disc_sample", &GravoMG::fastDiskSample);
+    m.def("average_edge_length", &GravoMG::averageEdgeLength);
+
+    m.def("fast_disc_sample", &GravoMG::fastDiscSample);
 
     m.def("construct_prolongations", &GravoMG::constructProlongations);
 
