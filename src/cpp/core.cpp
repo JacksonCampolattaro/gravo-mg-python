@@ -28,6 +28,8 @@ PYBIND11_MODULE(gravomg_bindings, m) {
 
     m.def("fast_disc_sample", &GravoMG::fastDiscSample);
 
+    m.def("construct_prolongation", &GravoMG::constructProlongation);
+
     m.def("construct_prolongations", &GravoMG::constructProlongations);
 
     m.def("maximum_delta_independent_set", &GravoMG::maximumDeltaIndependentSetWithDistances);

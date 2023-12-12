@@ -27,6 +27,7 @@ sampled_positions = torch.gather(
 print(f"selected {sampled_positions.shape[0]}/{data.pos.shape[0]}")
 
 polyscope.init()
-polyscope.register_point_cloud("positions", data.pos)
+polyscope.set_ground_plane_mode('none')
+polyscope.register_point_cloud("positions", data.pos, radius=0.0025)
 polyscope.register_point_cloud("sampled-positions", sampled_positions)
 polyscope.show()
