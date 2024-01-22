@@ -20,7 +20,7 @@ PYBIND11_MODULE(gravomg_bindings, m) {
             .value("INVDIST", GravoMG::Weighting::INVDIST);
 
     // Utility
-    m.def("to_homogenuous", &GravoMG::toHomogenous);
+    m.def("to_homogenous", &GravoMG::toHomogenous);
     m.def("extract_edges", &GravoMG::extractEdges);
 
     // Sampling
