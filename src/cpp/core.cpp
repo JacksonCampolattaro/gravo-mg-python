@@ -1,40 +1,40 @@
-#include "gravomg/multigrid.h"
-#include "gravomg/sampling.h"
-#include "gravomg/utility.h"
+#include <gravomg/multigrid.h>
+#include <gravomg/sampling.h>
 
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "Eigen/Sparse"
+#include <Eigen/Sparse>
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(gravomg_bindings, m) {
     m.doc() = "Gravo MG bindings";
 
-    py::enum_<Sampling>(m, "Sampling")
-            .value("FASTDISK", FASTDISK)
-            .value("RANDOM", RANDOM)
-            .value("MIS", MIS);
+    // Types
+    py::enum_<GravoMG::Weighting>(m, "Weighting")
+            .value("BARYCENTRIC", GravoMG::Weighting::BARYCENTRIC)
+            .value("UNIFORM", GravoMG::Weighting::UNIFORM)
+            .value("INVDIST", GravoMG::Weighting::INVDIST);
 
-    py::enum_<Weighting>(m, "Weighting")
-            .value("BARYCENTRIC", BARYCENTRIC)
-            .value("UNIFORM", UNIFORM)
-            .value("INVDIST", INVDIST);
+    // Utility
+    m.def("to_homogenuous", &GravoMG::toHomogenous);
+    m.def("extract_edges", &GravoMG::extractEdges);
 
-    m.def("average_edge_length", &GravoMG::averageEdgeLength);
-
+    // Sampling
+    m.def("maximum_delta_independent_set", &GravoMG::maximumDeltaIndependentSet);
+    m.def("maximum_delta_independent_set_with_distances", &GravoMG::maximumDeltaIndependentSetWithDistances);
     m.def("fast_disc_sample", &GravoMG::fastDiscSample);
 
+    // Prolongation
+    m.def("assign_parents", &GravoMG::assignParents);
+    m.def("extract_coarse_edges", &GravoMG::extractCoarseEdges);
+    m.def("coarse_from_mean_of_fine_children", &GravoMG::coarseFromMeanOfFineChildren);
+    m.def("average_edge_length", &GravoMG::averageEdgeLength);
+    m.def("construct_voronoi_triangles", &GravoMG::constructVoronoiTriangles);
     m.def("construct_prolongation", &GravoMG::constructProlongation);
-
-    m.def("construct_prolongations", &GravoMG::constructProlongations);
-
-    m.def("maximum_delta_independent_set", &GravoMG::maximumDeltaIndependentSetWithDistances);
-
-    m.def("maximum_delta_independent_set_with_distances", &GravoMG::maximumDeltaIndependentSetWithDistances);
 
 //    py::class_<MultigridSolver>(m, "MultigridSolver")
 //        .def(py::init<Eigen::MatrixXd, Eigen::MatrixXi, Eigen::SparseMatrix<double>, double, int, int, double, int, int, int, int, bool, Sampling, Weighting, bool>())
