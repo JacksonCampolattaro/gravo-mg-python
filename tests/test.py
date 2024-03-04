@@ -16,32 +16,31 @@ data = torch_geometric.transforms.sample_points.SamplePoints(num=NUM_FINE_POINTS
 fine_points = data.pos
 
 # Get a neighbor list from the robust laplacian of the point cloud
-L, M = robust_laplacian.point_cloud_laplacian(fine_points.numpy())
-fine_edges = gravomg.extract_edges(L)
-fine_edge_pairs = np.array([(i, j) for i, edge_set in enumerate(fine_edges) for j in edge_set])
+fine_edge_matrix, M = robust_laplacian.point_cloud_laplacian(fine_points.numpy())
+fine_edge_pairs = gravomg.extract_edges(fine_edge_matrix)
 
 # Use fast-disc-sampling to select coarse points
-radius = (REDUCTION_RATIO ** (1.0 / 3.0)) * gravomg.average_edge_length(fine_points, fine_edges)
-coarse_recommendations = gravomg.fast_disc_sample(fine_points, gravomg.to_homogenous(fine_edges), radius)
+radius = (REDUCTION_RATIO ** (1.0 / 3.0)) * gravomg.average_edge_length(fine_points, fine_edge_pairs)
+coarse_recommendations = gravomg.fast_disc_sample(fine_points, fine_edge_matrix, radius)
 
 # Link fine points to their nearest coarse point
-parents = gravomg.assign_parents(fine_points, fine_edges, coarse_recommendations)
+parents = gravomg.assign_parents(fine_points, fine_edge_matrix, coarse_recommendations)
 fine_coarse_pairs = np.array([(i, coarse_recommendations[p]) for i, p in enumerate(parents)])
 
 # Determine coarse edge relationships based on the relationships of their children
-coarse_edges = gravomg.extract_coarse_edges(fine_points, fine_edges, coarse_recommendations, parents)
-coarse_edge_pairs = np.array([(i, j) for i, edge_set in enumerate(coarse_edges) for j in edge_set])
+coarse_edge_matrix = gravomg.extract_coarse_edges(fine_points, fine_edge_matrix, coarse_recommendations, parents)
+coarse_edge_pairs = gravomg.extract_edges(coarse_edge_matrix)
 
 # Choose positions for the coarse points based on their child positions
-coarse_points = gravomg.coarse_from_mean_of_fine_children(fine_points, fine_edges, parents, len(coarse_recommendations))
+coarse_points = gravomg.coarse_from_mean_of_fine_children(fine_points, fine_edge_matrix, parents, len(coarse_recommendations))
 
 # Produce voronoi triangles for the coarse points
 # (only needed for debugging; this is built into construct_prolongation)
-triangles_with_normals, point_triangle_associations = gravomg.construct_voronoi_triangles(coarse_points, coarse_edges)
+triangles_with_normals, point_triangle_associations = gravomg.construct_voronoi_triangles(coarse_points, coarse_edge_matrix)
 triangles = [triangle for triangle, _normal in triangles_with_normals]
 
 # Construct prolongation operator
-prolongation_matrix = gravomg.construct_prolongation(fine_points, coarse_points, coarse_edges, parents)
+prolongation_matrix = gravomg.construct_prolongation(fine_points, coarse_points, coarse_edge_matrix, parents)
 
 # Use the operator to produce projections of the fine points based on their weights
 fine_projections = prolongation_matrix.dot(coarse_points)
