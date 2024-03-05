@@ -23,7 +23,7 @@ def extract_coarse_edges(
         fine_neighbors: scipy.sparse.csr_matrix,
         coarse_recommendations: List[int],
         fine_parents: List[int]
-) -> List[Set[int]]:
+) -> scipy.sparse.csr_matrix:
     return gravomg_bindings.extract_coarse_edges(fine_points, fine_neighbors, coarse_recommendations, fine_parents)
 
 

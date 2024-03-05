@@ -16,8 +16,9 @@ data = torch_geometric.transforms.sample_points.SamplePoints(num=NUM_FINE_POINTS
 fine_points = data.pos
 
 # Get a neighbor list from the robust laplacian of the point cloud
-fine_edge_matrix, M = robust_laplacian.point_cloud_laplacian(fine_points.numpy())
-fine_edge_pairs = gravomg.extract_edges(fine_edge_matrix)
+L, M = robust_laplacian.point_cloud_laplacian(fine_points.numpy())
+fine_edge_matrix = gravomg.to_edge_distance_matrix(L, fine_points)
+fine_edge_pairs, fine_edge_distances = gravomg.extract_edges(fine_edge_matrix)
 
 # Use fast-disc-sampling to select coarse points
 radius = (REDUCTION_RATIO ** (1.0 / 3.0)) * gravomg.average_edge_length(fine_points, fine_edge_pairs)
@@ -28,8 +29,10 @@ parents = gravomg.assign_parents(fine_points, fine_edge_matrix, coarse_recommend
 fine_coarse_pairs = np.array([(i, coarse_recommendations[p]) for i, p in enumerate(parents)])
 
 # Determine coarse edge relationships based on the relationships of their children
-coarse_edge_matrix = gravomg.extract_coarse_edges(fine_points, fine_edge_matrix, coarse_recommendations, parents)
-coarse_edge_pairs = gravomg.extract_edges(coarse_edge_matrix)
+coarse_edge_matrix = gravomg.extract_coarse_edges(
+    fine_points, fine_edge_matrix, coarse_recommendations, parents
+)
+coarse_edge_pairs, coarse_edge_distances = gravomg.extract_edges(coarse_edge_matrix)
 
 # Choose positions for the coarse points based on their child positions
 coarse_points = gravomg.coarse_from_mean_of_fine_children(fine_points, fine_edge_matrix, parents, len(coarse_recommendations))

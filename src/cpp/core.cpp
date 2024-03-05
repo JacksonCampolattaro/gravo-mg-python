@@ -1,5 +1,6 @@
 #include <gravomg/multigrid.h>
 #include <gravomg/sampling.h>
+#include <gravomg/utility.h>
 
 #include <pybind11/eigen.h>
 #include <pybind11/numpy.h>
@@ -20,6 +21,7 @@ PYBIND11_MODULE(gravomg_bindings, m) {
             .value("INVDIST", GravoMG::Weighting::INVDIST);
 
     // Utility
+    m.def("to_edge_distance_matrix", &GravoMG::toEdgeDistanceMatrix);
     m.def("extract_edges", &GravoMG::extractEdges);
 
     // Sampling
